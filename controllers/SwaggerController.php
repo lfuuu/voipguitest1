@@ -252,6 +252,7 @@ class SwaggerController extends Controller
                                                         'price' => 0.02,
                                                         'priceListId' => '2354',
                                                         'priceListName' => 'S6',
+                                                        'sim_profile' => 'Profile A, Profile B',
                                                     ],
                                                 ],
                                             ],
@@ -317,6 +318,10 @@ class SwaggerController extends Controller
                                             'price' => ['type' => 'number', 'format' => 'float'],
                                             'priceListId' => ['type' => 'string'],
                                             'priceListName' => ['type' => 'string'],
+                                            'sim_profile' => [
+                                                'type' => 'string',
+                                                'description' => 'Sim-профиль, соответствующий минимальной цене.',
+                                            ],
                                         ],
                                     ],
                                 ],
