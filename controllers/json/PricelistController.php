@@ -310,6 +310,7 @@ class PricelistController extends JsonController
                 'price'          => new Expression('loc.delta_price::numeric'),
                 'pricelist_id'   => 'p.id',
                 'pricelist_name' => 'p.name',
+                'sim_profile'    => 'loc.sim_profile',
                 'row_num'        => new Expression('row_number() OVER (PARTITION BY mcc_table.mcc ORDER BY loc.delta_price::numeric, p.id)'),
             ])
             ->from(['p' => 'billing_uu.pricelist'])
@@ -325,9 +326,27 @@ class PricelistController extends JsonController
             ->orderBy(['mcc_value' => SORT_ASC])
             ->all();
 
+        $simProfileIds = [];
+        foreach ($rows as $row) {
+            PricelistView::processQueryArray($simProfileIds, $row['sim_profile'] ?? null);
+        }
+        $simProfileNames = [];
+        if (!empty($simProfileIds)) {
+            $simProfileIds = array_values(array_unique($simProfileIds));
+            $simProfileRows = (new Query())
+                ->select(['id', 'name'])
+                ->from('billing_uu.sim_imsi_profile')
+                ->where(['id' => $simProfileIds])
+                ->all();
+            foreach ($simProfileRows as $simProfileRow) {
+                $simProfileNames[$simProfileRow['id']] = $simProfileRow['name'];
+            }
+        }
+
         $result = [];
         foreach ($rows as $row) {
             $mcc = isset($row['mcc_value']) ? str_pad((string)$row['mcc_value'], 3, '0', STR_PAD_LEFT) : '';
+            $simProfile = PricelistView::getNameFromDictionary($row['sim_profile'] ?? null, $simProfileNames);
 
             $result[] = [
                 'name'               => $row['country_name'] ?? '',
@@ -337,6 +356,7 @@ class PricelistController extends JsonController
                         'price'         => isset($row['price']) ? (float)$row['price'] : null,
                         'priceListId'   => (string)$row['pricelist_id'],
                         'priceListName' => $row['pricelist_name'],
+                        'sim_profile'   => $simProfile,
                     ],
                 ],
             ];
