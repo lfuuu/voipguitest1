@@ -168,7 +168,7 @@
     </div>
     <div class="modal-footer">
         <div class="pull-left">
-            <button type="submit" class="btn btn-success" ng-disabled="form.$invalid || $root.isAjaxLoading" ng-if="userPermissions['route_table_edit']" ng-click="save()">Сохранить</button>
+            <button type="submit" class="btn btn-success" ng-disabled="form.$invalid || $root.isAjaxLoading || !isFormReady" ng-if="userPermissions['route_table_edit']" ng-click="save()">Сохранить</button>
             <button type="button" class="btn btn-default btn-sm" ng-click="back()">Закрыть</button>
             <action-log-view-button ng-if="item.id && userPermissions['action_log_view']" key="{{item.id}}" type="json/route-table" action="save"></action-log-view-button>
         </div>
