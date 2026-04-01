@@ -1,9 +1,24 @@
-var RouteTableEditCtrl = function ($scope, RouteTable, Outcome, params, $modalInstance, $window, Redirect) {
+var RouteTableEditCtrl = function ($scope, $q, RouteTable, List, Outcome, params, $modalInstance, $window, Redirect) {
+
+    $scope.isFormReady = false;
 
     if (params.id) {
         RouteTable.get({id: params.id}).then(function (data) {
             $scope.item = data;
             $scope.initialServerId = $scope.item.server_id;
+
+            return $q.all([
+                List.number(1, $scope.item.server_id),
+                List.number(2, $scope.item.server_id),
+                List.number(3, $scope.item.server_id),
+                List.cpc(),
+                List.headerRule(),
+                List.outcome($scope.item.server_id),
+                List.routeTable($scope.item.server_id),
+                List.trunkGroup()
+            ]);
+        }).then(function () {
+            $scope.isFormReady = true;
         });
     } else {
         $scope.item = {
@@ -12,6 +27,7 @@ var RouteTableEditCtrl = function ($scope, RouteTable, Outcome, params, $modalIn
             routeRules: [],
             route_mode: 'static'
         };
+        $scope.isFormReady = true;
     }
 
     $scope.sortableOptions = {
@@ -45,18 +61,22 @@ var RouteTableEditCtrl = function ($scope, RouteTable, Outcome, params, $modalIn
 
     $scope.removeRoute = function (index) {
         $scope.item.routes.splice(index, 1);
-    };  
+    };
 
     $scope.save = function () {
+        if (!$scope.isFormReady) {
+            return;
+        }
+
         if (params.id && $scope.initialServerId !== $scope.server.id) {
             alert("Изменения нельзя сохранить, так как вы пытаетесь изменить таблицу маршрутизации, которая находится на другом регионе.");
             return;
         }
-    
+
         RouteTable.save($scope.item).then(function (response) {
             $modalInstance.close();
         });
-    };    
+    };
 
     $scope.back = function () {
         $modalInstance.dismiss();

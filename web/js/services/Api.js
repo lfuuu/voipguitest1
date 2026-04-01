@@ -1219,8 +1219,8 @@ app.factory('RouteCase', function ($q, ApiLoader, $rootScope) {
 
 app.factory('Outcome', function ($q, ApiLoader, $rootScope) {
     var url = '/json/outcome/';
-    var list = undefined;
-    var promise = undefined;
+    var listByServer = {};
+    var promiseByServer = {};
     return {
         read: function (data) {
             return ApiLoader.post(url + 'read', data);
@@ -1229,37 +1229,39 @@ app.factory('Outcome', function ($q, ApiLoader, $rootScope) {
             return ApiLoader.post(url + 'get', data);
         },
         list: function (serverId) {
-            if (promise !== undefined) return promise;
-
             if (!serverId) {
                 serverId = $rootScope.server.id;
             }
 
+            if (promiseByServer[serverId] !== undefined) return promiseByServer[serverId];
+
             var deferred = $q.defer();
-            if (list !== undefined) {
-                deferred.resolve(list);
+            if (listByServer[serverId] !== undefined) {
+                deferred.resolve(listByServer[serverId]);
                 return deferred.promise;
             } else {
                 var data = { server_id: serverId };
                 ApiLoader.post(url + 'list', data)
                     .then(function (data) {
-                        list = data;
-                        promise = undefined;
+                        listByServer[serverId] = data;
+                        promiseByServer[serverId] = undefined;
                         deferred.resolve(data);
                     }, function (data) {
-                        promise = undefined;
+                        promiseByServer[serverId] = undefined;
                         deferred.reject(data);
                     });
-                promise = deferred.promise;
+                promiseByServer[serverId] = deferred.promise;
             }
             return deferred.promise;
         },
         save: function (data) {
-            list = undefined;
+            listByServer = {};
+            promiseByServer = {};
             return ApiLoader.post(url + 'save', data);
         },
         delete: function (id) {
-            list = undefined;
+            listByServer = {};
+            promiseByServer = {};
             return ApiLoader.post(url + 'delete', { id: id });
         },
         findUsagesInRouteTables: function (id) {
@@ -1271,36 +1273,48 @@ app.factory('Outcome', function ($q, ApiLoader, $rootScope) {
 
 app.factory('Number', function ($q, ApiLoader, $rootScope) {
     var url = '/json/number/';
-    var listA = undefined;
-    var listB = undefined;
-    var listC = undefined;
-    var listGT = undefined;
-    var promiseA = undefined;
-    var promiseB = undefined;
-    var promiseC = undefined;
-    var promiseGT = undefined;
+    var listA = {};
+    var listB = {};
+    var listC = {};
+    var listGT = {};
+    var promiseA = {};
+    var promiseB = {};
+    var promiseC = {};
+    var promiseGT = {};
+
+    function getTypeCache(type) {
+        if (type == 1 || type == '1') {
+            return { list: listA, promise: promiseA };
+        } else if (type == 2 || type == '2') {
+            return { list: listB, promise: promiseB };
+        } else if (type == 3 || type == '3') {
+            return { list: listC, promise: promiseC };
+        } else if (type == 4 || type == '4') {
+            return { list: listGT, promise: promiseGT };
+        }
+
+        return null;
+    }
+
+    function clearTypeCache(type) {
+        if (type == '1') {
+            listA = {};
+            promiseA = {};
+        } else if (type == '2') {
+            listB = {};
+            promiseB = {};
+        } else if (type == '3') {
+            listC = {};
+            promiseC = {};
+        } else if (type == '4') {
+            listGT = {};
+            promiseGT = {};
+        }
+    }
+
     return {
         clearList: function (type) {
-            switch (type) {
-                case '1':
-                    listA = undefined;
-                    promiseA = undefined;
-                    break;
-                case '2':
-                    listB = undefined;
-                    promiseB = undefined;
-                    break;
-                case '3':
-                    listC = undefined;
-                    promiseC = undefined;
-                    break;
-                case '4':
-                    listGT = undefined;
-                    promiseGT = undefined;
-                    break;
-                default:
-                    break;
-            }
+            clearTypeCache(type + '');
         },
         read: function (data) {
             return ApiLoader.post(url + 'read', data);
@@ -1313,91 +1327,31 @@ app.factory('Number', function ($q, ApiLoader, $rootScope) {
                 serverId = $rootScope.server.id;
             }
 
-            if (type == 1) {
-                if (promiseA !== undefined) return promiseA;
-
-                var deferred = $q.defer();
-                if (listA !== undefined) {
-                    deferred.resolve(listA);
-                    return deferred.promise;
-                } else {
-                    var data = { server_id: serverId, type_id: type };
-                    ApiLoader.post(url + 'list', data)
-                        .then(function (data) {
-                            listA = data;
-                            promiseA = undefined;
-                            deferred.resolve(listA);
-                        }, function (data) {
-                            promiseA = undefined;
-                            deferred.reject(data);
-                        });
-                    promiseA = deferred.promise;
-                }
-                return deferred.promise;
-            } else if (type == 2) {
-                if (promiseB !== undefined) return promiseB;
-
-                var deferred = $q.defer();
-                if (listB !== undefined) {
-                    deferred.resolve(listB);
-                    return deferred.promise;
-                } else {
-                    var data = { server_id: serverId, type_id: type };
-                    ApiLoader.post(url + 'list', data)
-                        .then(function (data) {
-                            listB = data;
-                            promiseB = undefined;
-                            deferred.resolve(listB);
-                        }, function (data) {
-                            promiseB = undefined;
-                            deferred.reject(data);
-                        });
-                    promiseB = deferred.promise;
-                }
-                return deferred.promise;
-            } else if (type == 3) {
-                if (promiseC !== undefined) return promiseC;
-
-                var deferred = $q.defer();
-                if (listC !== undefined) {
-                    deferred.resolve(listC);
-                    return deferred.promise;
-                } else {
-                    var data = { server_id: serverId, type_id: type };
-                    ApiLoader.post(url + 'list', data)
-                        .then(function (data) {
-                            listC = data;
-                            promiseC = undefined;
-                            deferred.resolve(listC);
-                        }, function (data) {
-                            promiseC = undefined;
-                            deferred.reject(data);
-                        });
-                    promiseC = deferred.promise;
-                }
-                return deferred.promise;
-            } else if (type == 4) {
-                if (promiseGT !== undefined) return promiseGT;
-
-                var deferred = $q.defer();
-                if (listGT !== undefined) {
-                    deferred.resolve(listGT);
-                    return deferred.promise;
-                } else {
-                    var data = { server_id: serverId, type_id: type };
-                    ApiLoader.post(url + 'list', data)
-                        .then(function (data) {
-                            listGT = data;
-                            promiseGT = undefined;
-                            deferred.resolve(listGT);
-                        }, function (data) {
-                            promiseGT = undefined;
-                            deferred.reject(data);
-                        });
-                    promiseGT = deferred.promise;
-                }
-                return deferred.promise;
+            var cache = getTypeCache(type);
+            if (!cache) {
+                return $q.reject('Unknown number type');
             }
+
+            if (cache.promise[serverId] !== undefined) return cache.promise[serverId];
+
+            var deferred = $q.defer();
+            if (cache.list[serverId] !== undefined) {
+                deferred.resolve(cache.list[serverId]);
+                return deferred.promise;
+            } else {
+                var data = { server_id: serverId, type_id: type };
+                ApiLoader.post(url + 'list', data)
+                    .then(function (data) {
+                        cache.list[serverId] = data;
+                        cache.promise[serverId] = undefined;
+                        deferred.resolve(cache.list[serverId]);
+                    }, function (data) {
+                        cache.promise[serverId] = undefined;
+                        deferred.reject(data);
+                    });
+                cache.promise[serverId] = deferred.promise;
+            }
+            return deferred.promise;
         },
         listByType: function (data) {
             return ApiLoader.post(url + 'list-by-type', data);
@@ -1406,11 +1360,25 @@ app.factory('Number', function ($q, ApiLoader, $rootScope) {
             return ApiLoader.post(url + 'list-by-server-id', {server_id: serverId});
         },
         save: function (data) {
-            listA = listB = undefined;
+            listA = {};
+            listB = {};
+            listC = {};
+            listGT = {};
+            promiseA = {};
+            promiseB = {};
+            promiseC = {};
+            promiseGT = {};
             return ApiLoader.post(url + 'save', data);
         },
         delete: function (id) {
-            listA = listB = undefined;
+            listA = {};
+            listB = {};
+            listC = {};
+            listGT = {};
+            promiseA = {};
+            promiseB = {};
+            promiseC = {};
+            promiseGT = {};
             return ApiLoader.post(url + 'delete', { id: id });
         },
         findUsagesInRouteTables: function (id) {
@@ -1425,44 +1393,47 @@ app.factory('Number', function ($q, ApiLoader, $rootScope) {
         findUsagesInStatRules: function (id) {
             return ApiLoader.post(url + 'find-usages-in-stat-rules', { id: id });
         },
+        findUsagesInNumberReplace: function (id) {
+            return ApiLoader.post(url + 'find-usages-in-number-replace', { id: id });
+        }
     };
 });
 
 app.factory('NumberAll', function ($q, ApiLoader, $rootScope) {
     var url = '/json/number/';
-    var list = undefined;
-    var promise = undefined;
+    var listByServer = {};
+    var promiseByServer = {};
     return {
-        clearList: function (type) {
-            list = undefined;
-            promise = undefined;
+        clearList: function () {
+            listByServer = {};
+            promiseByServer = {};
         },
         list: function (type, serverId) {
             if (!serverId) {
                 serverId = $rootScope.server.id;
             }
 
-            if (promise !== undefined) return promise;
+            if (promiseByServer[serverId] !== undefined) return promiseByServer[serverId];
 
             var deferred = $q.defer();
-            if (list !== undefined) {
-                deferred.resolve(list);
+            if (listByServer[serverId] !== undefined) {
+                deferred.resolve(listByServer[serverId]);
                 return deferred.promise;
             } else {
                 var data = { server_id: serverId };
                 ApiLoader.post(url + 'list', data)
                     .then(function (data) {
-                        list = data;
-                        promise = undefined;
-                        deferred.resolve(list);
+                        listByServer[serverId] = data;
+                        promiseByServer[serverId] = undefined;
+                        deferred.resolve(listByServer[serverId]);
                     }, function (data) {
-                        promise = undefined;
+                        promiseByServer[serverId] = undefined;
                         deferred.reject(data);
                     });
-                promise = deferred.promise;
+                promiseByServer[serverId] = deferred.promise;
             }
             return deferred.promise;
-        },
+        }
     };
 });
 
@@ -2138,8 +2109,8 @@ app.factory('ReleaseReason', function ($q, ApiLoader, $rootScope) {
 
 app.factory('RouteTable', function ($q, ApiLoader, $rootScope) {
     var url = '/json/route-table/';
-    var list = undefined;
-    var promise = undefined;
+    var listByServer = {};
+    var promiseByServer = {};
     return {
         read: function (data) {
             return ApiLoader.post(url + 'read', data);
@@ -2147,34 +2118,39 @@ app.factory('RouteTable', function ($q, ApiLoader, $rootScope) {
         get: function (data) {
             return ApiLoader.post(url + 'get', data);
         },
-        list: function () {
-            if (promise !== undefined) return promise;
+        list: function (serverId) {
+            if (!serverId) {
+                serverId = $rootScope.server.id;
+            }
+            if (promiseByServer[serverId] !== undefined) return promiseByServer[serverId];
 
             var deferred = $q.defer();
-            if (list !== undefined) {
-                deferred.resolve(list);
+            if (listByServer[serverId] !== undefined) {
+                deferred.resolve(listByServer[serverId]);
                 return deferred.promise;
             } else {
-                var data = { server_id: $rootScope.server.id };
+                var data = { server_id: serverId };
                 ApiLoader.post(url + 'list', data)
                     .then(function (data) {
-                        list = data;
-                        promise = undefined;
+                        listByServer[serverId] = data;
+                        promiseByServer[serverId] = undefined;
                         deferred.resolve(data);
                     }, function (data) {
-                        promise = undefined;
+                        promiseByServer[serverId] = undefined;
                         deferred.reject(data);
                     });
-                promise = deferred.promise;
+                promiseByServer[serverId] = deferred.promise;
             }
             return deferred.promise;
         },
         save: function (data) {
-            list = undefined;
+            listByServer = {};
+            promiseByServer = {};
             return ApiLoader.post(url + 'save', data);
         },
         delete: function (id) {
-            list = undefined;
+            listByServer = {};
+            promiseByServer = {};
             return ApiLoader.post(url + 'delete', { id: id });
         }
     };
@@ -3062,8 +3038,8 @@ app.factory('List', function (
         releaseReasonByServerId: function (serverId) {
             return ReleaseReason.list(serverId);
         },
-        routeTable: function () {
-            return RouteTable.list();
+        routeTable: function (serverId) {
+            return RouteTable.list(serverId);
         },
         network: function () {
             return Network.list();

@@ -53,13 +53,13 @@
                                 <span class="badge">{{$index + 1}}</span>
                             </td>
                             <td style="padding-bottom: 3px;padding-top: 3px;padding-right: 1px;padding-left: 1px;" width="11%">
-                                <select-box disabled="{{line.is_locked}}" list="number" model="line.a_number_id" param="1" default="Любой номер"></select-box>
+                                <select-box disabled="{{line.is_locked}}" list="number" model="line.a_number_id" param="1" server="{{item.server_id}}" default="Любой номер"></select-box>
                             </td>
                             <td style="padding-bottom: 3px;padding-top: 3px;padding-right: 1px;padding-left: 1px;" width="11%">
-                                <select-box disabled="{{line.is_locked}}" list="number" model="line.b_number_id" param="2" default="Любой номер"></select-box>
+                                <select-box disabled="{{line.is_locked}}" list="number" model="line.b_number_id" param="2" server="{{item.server_id}}" default="Любой номер"></select-box>
                             </td>
                             <td style="padding-bottom: 3px;padding-top: 3px;padding-right: 1px;padding-left: 1px;" width="11%">
-                                <select-box disabled="{{line.is_locked}}" list="number" model="line.c_number_id" param="3" default="Любой номер"></select-box>
+                                <select-box disabled="{{line.is_locked}}" list="number" model="line.c_number_id" param="3" server="{{item.server_id}}" default="Любой номер"></select-box>
                             </td>
                             <td style="padding-bottom: 3px;padding-top: 3px;padding-right: 1px;padding-left: 1px;" width="11%">
                                 <select-box disabled="{{line.is_locked}}" list="cpc" model="line.cpc_id" default="Любой CPC"></select-box>
@@ -68,7 +68,7 @@
                                 <select-box disabled="{{line.is_locked}}" list="headerRule" model="line.header_rule_id" default="Любой HeaderRule"></select-box>
                             </td>
                             <td style="padding-bottom: 3px;padding-top: 3px;padding-right: 1px;padding-left: 1px;" width="11%">
-                                <outcome-select-box disabled="{{line.is_locked}}" outcome-model="line.outcome_id" route-table-model="line.outcome_route_table_id"></outcome-select-box>
+                                <outcome-select-box disabled="{{line.is_locked}}" outcome-model="line.outcome_id" route-table-model="line.outcome_route_table_id" server="{{item.server_id}}" default="Любой Outcome"></outcome-select-box>
                             </td>
                             <td style="padding-bottom: 3px;padding-top: 3px;padding-right: 1px;padding-left: 1px; min-width: 70px;" width="7%" ng-if="userPermissions['route_table_route_lock']">
                                 <div class="btn-group" ng-click="line.is_locked = !line.is_locked">
@@ -129,21 +129,21 @@
                                     <span ng-if="line.number_id_filter_a !== null">A:</span>
                                 </td>
                                 <td>
-                                    <select-box list="number" model="line.number_id_filter_a" param="1" default="Любой номер"></select-box>
+                                    <select-box list="number" model="line.number_id_filter_a" param="1" server="{{item.server_id}}" default="Любой номер"></select-box>
                                 </td>
 
                                 <td width="3%" style="cursor: ns-resize">
                                     <span ng-if="line.number_id_filter_b !== null">B:</span>
                                 </td>
                                 <td>
-                                    <select-box list="number" model="line.number_id_filter_b" param="2" default="Любой номер"></select-box>
+                                    <select-box list="number" model="line.number_id_filter_b" param="2" server="{{item.server_id}}" default="Любой номер"></select-box>
                                 </td>
 
                                 <td width="3%" style="cursor: ns-resize">
                                     <span ng-if="line.number_id_filter_c !== null">C:</span>
                                 </td>
                                 <td>
-                                    <select-box list="number" model="line.number_id_filter_c" param="3" default="Любой номер"></select-box>
+                                    <select-box list="number" model="line.number_id_filter_c" param="3" server="{{item.server_id}}" default="Любой номер"></select-box>
                                 </td>
                                 <td>
                                     <button type="button" class="btn btn-danger btn-sm glyphicon glyphicon-minus" ng-click="removeRouteRule($index)"></button>
@@ -168,7 +168,7 @@
     </div>
     <div class="modal-footer">
         <div class="pull-left">
-            <button type="submit" class="btn btn-success" ng-disabled="form.$invalid || $root.isAjaxLoading" ng-if="userPermissions['route_table_edit']" ng-click="save()">Сохранить</button>
+            <button type="submit" class="btn btn-success" ng-disabled="form.$invalid || $root.isAjaxLoading || !isFormReady" ng-if="userPermissions['route_table_edit']" ng-click="save()">Сохранить</button>
             <button type="button" class="btn btn-default btn-sm" ng-click="back()">Закрыть</button>
             <action-log-view-button ng-if="item.id && userPermissions['action_log_view']" key="{{item.id}}" type="json/route-table" action="save"></action-log-view-button>
         </div>

@@ -15,7 +15,8 @@
 				default: '@',
 				required: '@',
 				param: '@',
-				disabled: '@'
+				disabled: '@',
+				server: '@'
 			}
 		};
 		return directive;
@@ -75,13 +76,13 @@
 			}
 
 			function loadOutcomeList() {
-				List.outcome().then(function(data){
+				List.outcome(scope.server).then(function(data){
 					scope.listOutcome = data;
 				});
 			}
 
 			function loadRouteTableList() {
-				List.routeTable().then(function(data){
+				List.routeTable(scope.server).then(function(data){
 					scope.listRouteTable = data;
 				});
 			}
