@@ -1,6 +1,6 @@
 <div class="input-group input-group-sm">
-    <select ui-select2 data-placeholder="Выберите..." ng-model="value" ng-disabled="{{disabled}}" style="width: 99%;">
-        <option value="">-- Любой Outcome --</option>
+    <select ui-select2 data-placeholder="{{placeholder}}" ng-model="value" ng-disabled="{{disabled}}" style="width: 99%;">
+        <option ng-if="placeholder || default" value="">{{default ? '-- ' + default + ' --' : ''}}</option>
         <option value="newOutcome">-- Создать Outcome --</option>
         <option value="newRouteTable">-- Создать Таблицу маршрутизации --</option>
         <option ng-repeat="item in listOutcome" value="{{'oc_' + item.id}}">{{item.name}}</option>

@@ -68,7 +68,7 @@
                                 <select-box disabled="{{line.is_locked}}" list="headerRule" model="line.header_rule_id" default="Любой HeaderRule"></select-box>
                             </td>
                             <td style="padding-bottom: 3px;padding-top: 3px;padding-right: 1px;padding-left: 1px;" width="11%">
-                                <outcome-select-box disabled="{{line.is_locked}}" outcome-model="line.outcome_id" route-table-model="line.outcome_route_table_id"></outcome-select-box>
+                                <outcome-select-box disabled="{{line.is_locked}}" outcome-model="line.outcome_id" route-table-model="line.outcome_route_table_id" default="Любой Outcome"></outcome-select-box>
                             </td>
                             <td style="padding-bottom: 3px;padding-top: 3px;padding-right: 1px;padding-left: 1px; min-width: 70px;" width="7%" ng-if="userPermissions['route_table_route_lock']">
                                 <div class="btn-group" ng-click="line.is_locked = !line.is_locked">
