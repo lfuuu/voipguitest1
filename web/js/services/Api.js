@@ -1390,8 +1390,49 @@ app.factory('Number', function ($q, ApiLoader, $rootScope) {
         findUsagesInTrunkRules: function (id) {
             return ApiLoader.post(url + 'find-usages-in-trunk-rules', { id: id });
         },
+        findUsagesInStatRules: function (id) {
+            return ApiLoader.post(url + 'find-usages-in-stat-rules', { id: id });
+        },
         findUsagesInNumberReplace: function (id) {
             return ApiLoader.post(url + 'find-usages-in-number-replace', { id: id });
+        }
+    };
+});
+
+app.factory('NumberAll', function ($q, ApiLoader, $rootScope) {
+    var url = '/json/number/';
+    var listByServer = {};
+    var promiseByServer = {};
+    return {
+        clearList: function () {
+            listByServer = {};
+            promiseByServer = {};
+        },
+        list: function (type, serverId) {
+            if (!serverId) {
+                serverId = $rootScope.server.id;
+            }
+
+            if (promiseByServer[serverId] !== undefined) return promiseByServer[serverId];
+
+            var deferred = $q.defer();
+            if (listByServer[serverId] !== undefined) {
+                deferred.resolve(listByServer[serverId]);
+                return deferred.promise;
+            } else {
+                var data = { server_id: serverId };
+                ApiLoader.post(url + 'list', data)
+                    .then(function (data) {
+                        listByServer[serverId] = data;
+                        promiseByServer[serverId] = undefined;
+                        deferred.resolve(listByServer[serverId]);
+                    }, function (data) {
+                        promiseByServer[serverId] = undefined;
+                        deferred.reject(data);
+                    });
+                promiseByServer[serverId] = deferred.promise;
+            }
+            return deferred.promise;
         }
     };
 });
